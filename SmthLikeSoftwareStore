@@ -5,18 +5,11 @@ set -eo pipefail
 if zenity --question --title "Smth like software store" --text="Do you want to install or uninstall apps ?" --ok-label=Install --cancel-label=Uninstall --no-wrap
 then
     out1=$(zenity --entry --title "Search" --text "Type the name of the app you wanna install:")
-    [[ "$?" != "0" ]] && exit 1
     out2="$(flatpak search $out1 | cut -f1,2,3 | sed 's/^/0\n/g' | zenity --list --radiolist --width=400 --height=300 --column Selected --column Name --title Apps | cut -f3)"
     if zenity --question --title "Verify installation" --text="Do you want to install this app ?" --no-wrap
     then
         flatpak install $out2 -y | zenity --progress --pulsate --auto-close --auto-kill --no-cancel --title "Installing" --text "Installing"
-        zenity --info --title "Success" --text="Installation successful" --no-wrap
-        if zenity --question --no-wrap --title "Reboot ?" --text="Most of the times you need to restart device after installing an app. So, what to do you wanna do ?" --ok-label=Reboot
-        then
-            zenity --password --title "Root password needed for rebooting" | sudo -S reboot
-        else
-            exit 1
-        fi  
+        zenity --info --title "Success" --text="Installation successful" --no-wrap  
     else
         exit 1
     fi
@@ -25,13 +18,7 @@ else
     if zenity --question --title "Verify uninstallation" --text="Do you want to uninstall this app ?" --no-wrap
     then
         flatpak uninstall $output1 -y | zenity --progress --pulsate --auto-close --auto-kill --no-cancel --title "Uninstalling" --text "Uninstalling"
-        zenity --info --title "Success" --text="Uninstallation successful" --no-wrap
-        if zenity --question --no-wrap --title "Reboot ?" --text="Most of the times you need to restart device after uninstalling an app. So, what to do you wanna do ?" --ok-label=Reboot
-        then
-            zenity --password --title "Root password needed for rebooting" | sudo -S reboot
-        else
-            exit 1
-        fi    
+        zenity --info --title "Success" --text="Uninstallation successful" --no-wrap    
     else
         exit 1
     fi
